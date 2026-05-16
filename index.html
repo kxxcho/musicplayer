@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커스텀 뮤직 플레이어 메이커</title>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://grxvityhj.github.io/solar-icon/script.js"></script>
+
+<style>
+    body {
+        font-family: pretendard;
+        background-color: #f9faf9;
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+        margin: 0;
+        color: #333;
+    }
+    .maker-container {
+        display: flex;
+        gap: 40px;
+        flex-wrap: wrap;
+        max-width: 900px;
+    }
+
+    /* 왼쪽: 입력창 디자인 */
+    .input-section {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        width: 320px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+    .input-section h2 { margin-top: 0; font-size: 20px; color: #474747; }
+    .input-group { margin-bottom: 15px; }
+    .input-group label { display: block; font-size: 13px; margin-bottom: 5px; font-weight: bold; color: #4c4c4c;}
+    .input-group input[type="text"] { 
+        width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
+    }
+    /* 파일 첨부 버튼 스타일 */
+    .input-group input[type="file"] {
+        width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; background-color: #fafafa; font-size: 12px; color: #7a6a5d;
+    }
+    
+    /* 🎨 색상 선택기 스타일 */
+    .color-pickers { display: flex; gap: 10px; }
+    .color-pickers .input-group { flex: 1; }
+    .color-pickers input[type="color"] {
+        width: 100%; height: 40px; border: none; border-radius: 8px; cursor: pointer; padding: 0; background: none;
+    }
+
+    .btn-add {
+        width: 100%; padding: 12px; background: #515151; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px; margin-top: 10px;
+    }
+    .btn-download {
+        width: 100%; padding: 12px; background: #3d3d3d; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+    }
+
+    /* 오른쪽: 플레이어 디자인 */
+    .music-player-card {
+        --player-bg: ##f7f7f7;
+        --player-point: #999999;
+        --player-text: #494949;
+
+        width: 320px; 
+        background-color: var(--player-bg); 
+        border-radius: 20px; 
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05); 
+        border: 2px solid #e5e5e5;
+        position: relative; 
+        box-sizing: border-box;
+    }
+    
+    .cover-wrapper { width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; margin-bottom: 5px; background-color: rgba(0,0,0,0.05); }
+    .cover-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .copyright-text { font-size: 10px; color: var(--player-text); opacity: 0.6; text-align: right; margin-bottom: 15px; padding-right: 2px; }
+    .song-info { margin-bottom: 15px; color: var(--player-text); }
+    .song-title { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
+    .song-artist { font-size: 13px; opacity: 0.8; }
+    
+    input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 10px 0; }
+    input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: var(--player-point); opacity: 0.4; border-radius: 2px; }
+    input[type=range]::-webkit-slider-thumb { height: 14px; width: 14px; border-radius: 50%; background: var(--player-point); cursor: pointer; -webkit-appearance: none; margin-top: -5px; }
+    
+    .controls { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 5px; margin-bottom: 15px; }
+    .controls button { background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;}
+    
+    .volume-container { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 0 10px; }
+    
+    .controls button, .volume-container span { color: var(--player-point); }
+    .solar-icon svg { width: 24px; height: 24px; }
+    #btn-play .solar-icon svg { width: 36px; height: 36px; }
+
+</style>
+</head>
+<body>
+
+<div class="maker-container">
+    <div class="input-section">
+        <h2> music player</h2>
+        <div class="input-group">
+            <label>title</label>
+            <input type="text" id="in-title" placeholder="ex. 제목 또는 캐치프레이즈">
+        </div>
+        <div class="input-group">
+            <label>name</label>
+            <input type="text" id="in-artist" placeholder="ex. 가수">
+        </div>
+        
+        <div class="input-group">
+            <label>사진 파일 첨부</label>
+            <input type="file" id="in-image" accept="image/*">
+        </div>
+
+        <div class="input-group">
+            <label>유튜브 ID (v= 뒤에 영어)</label>
+            <input type="text" id="in-youtube" placeholder="w2-uvGZCe3g">
+        </div>
+        <div class="input-group">
+            <label>출처 (ⓒ)</label>
+            <input type="text" id="in-copyright" placeholder="ⓒ 커미션주">
+        </div>
+
+        <div class="color-pickers">
+            <div class="input-group">
+                <label>배경색</label>
+                <input type="color" id="in-bg-color" value="#f9faf9">
+            </div>
+            <div class="input-group">
+                <label>포인트색</label>
+                <input type="color" id="in-point-color" value="#757575">
+            </div>
+            <div class="input-group">
+                <label>글자색</label>
+                <input type="color" id="in-text-color" value="#424242">
+            </div>
+        </div>
+
+        <button class="btn-add" onclick="updatePlayer()">적용하기 (미리보기)</button>
+        <button class="btn-download" onclick="captureImage()">이미지로 저장하기</button>
+    </div>
+
+    <div id="capture-area">
+        <div class="music-player-card" id="player-card">
+            <div id="youtube-audio" style="display:none;"></div>
+            
+            <div class="cover-wrapper">
+                <img id="cover-img" crossorigin="anonymous" src="https://via.placeholder.com/300/e0dcd3/8c7f76?text=Image+Here" alt="cover">
+            </div>
+            
+            <div class="copyright-text" id="copyright-text">ⓒ 출처</div>
+            
+            <div class="song-info">
+                <div class="song-title" id="song-title">노래 제목</div>
+                <div class="song-artist" id="song-artist">가수 이름</div>
+            </div>
+            
+            <input type="range" id="progress-slider" value="0" min="0" max="100">
+            
+            <div class="controls">
+                <button><i class="solar-icon" icon="skip-previous" type="bold"></i></button>
+                <button id="btn-play">
+                    <span id="icon-play"><i class="solar-icon" icon="play" type="bold"></i></span>
+                    <span id="icon-pause" style="display:none;"><i class="solar-icon" icon="pause" type="bold"></i></span>
+                </button>
+                <button><i class="solar-icon" icon="skip-next" type="bold"></i></button>
+            </div>
+
+            <div class="volume-container">
+                <span><i class="solar-icon" icon="volume-small"></i></span>
+                <input type="range" id="volume-slider" value="50" min="0" max="100">
+                <span><i class="solar-icon" icon="volume-loud"></i></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let player;
+    // 🌟 사용자가 첨부한 이미지를 임시로 저장할 변수
+    let uploadedImageSrc = "https://via.placeholder.com/300/e0dcd3/8c7f76?text=Image+Here";
+
+    // 유튜브 API 로드
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    // 🌟 파일 첨부 시 이미지를 읽어오는 기능
+    document.getElementById('in-image').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImageSrc = e.target.result; // 읽어온 이미지를 변수에 저장
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function updatePlayer() {
+        const title = document.getElementById('in-title').value || '노래 제목';
+        const artist = document.getElementById('in-artist').value || '가수 이름';
+        const copyright = document.getElementById('in-copyright').value || 'ⓒ 출처';
+        const youtubeId = document.getElementById('in-youtube').value || 'w2-uvGZCe3g';
+
+        const bgColor = document.getElementById('in-bg-color').value;
+        const pointColor = document.getElementById('in-point-color').value;
+        const textColor = document.getElementById('in-text-color').value;
+        
+        const playerCard = document.getElementById('player-card');
+        playerCard.style.setProperty('--player-bg', bgColor);
+        playerCard.style.setProperty('--player-point', pointColor);
+        playerCard.style.setProperty('--player-text', textColor);
+
+        document.getElementById('song-title').innerText = title;
+        document.getElementById('song-artist').innerText = artist;
+        document.getElementById('copyright-text').innerText = copyright;
+        
+        // 🌟 저장해둔 첨부 이미지 띄우기
+        document.getElementById('cover-img').src = uploadedImageSrc;
+
+        if (player && typeof player.loadVideoById === 'function') {
+            player.loadVideoById(youtubeId);
+            document.getElementById('icon-play').style.display = 'inline-block';
+            document.getElementById('icon-pause').style.display = 'none';
+            isPlaying = false;
+        } else {
+            player = new YT.Player('youtube-audio', {
+                height: '0', width: '0', videoId: youtubeId,
+                playerVars: { 'autoplay': 0, 'controls': 0 }
+            });
+        }
+    }
+
+    function captureImage() {
+        const target = document.getElementById('player-card');
+        html2canvas(target, { backgroundColor: null, scale: 2, useCORS: true }).then(canvas => {
+            let link = document.createElement('a');
+            link.download = 'my_custom_player.png'; 
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+
+    let isPlaying = false;
+    document.getElementById('btn-play').addEventListener('click', function() {
+        if(!player) return alert('먼저 [적용하기]를 눌러 음악을 세팅해주세요!');
+        
+        if(isPlaying) { 
+            player.pauseVideo(); 
+            document.getElementById('icon-play').style.display = 'inline-block';
+            document.getElementById('icon-pause').style.display = 'none';
+        } else { 
+            player.playVideo(); 
+            document.getElementById('icon-play').style.display = 'none';
+            document.getElementById('icon-pause').style.display = 'inline-block';
+        }
+        isPlaying = !isPlaying;
+    });
+</script>
+
+</body>
+</html>

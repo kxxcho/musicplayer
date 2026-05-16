@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>키쵸 뮤직 플레이어</title>
+<title>키쵸 뮤직 플레이어 </title>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <style>
@@ -26,7 +26,7 @@
         justify-content: center;
     }
 
-    /* 📱 모바일 반응형 (가로 배치 -> 세로 배치) */
+    /* 📱 모바일 반응형 */
     @media (max-width: 768px) {
         body { padding: 20px 10px; }
         .maker-container { gap: 20px; flex-direction: column; align-items: center; }
@@ -72,29 +72,19 @@
         position: relative; box-sizing: border-box;
     }
     
-    /* 🌟 사진 영역 1:1 절대 고정 + 얇은 테두리 추가 */
+    /* 🌟 사진 캡처 오류 완벽 해결용 CSS (배경 이미지 방식) 🌟 */
     .cover-wrapper { 
-        width: 100%; 
-        height: 0; /* ◀ 모바일에서 박스가 아래로 길쭉하게 늘어나는 걸 막아주는 핵심! */
-        position: relative; 
-        padding-bottom: 100%; /* 어떤 사진을 넣어도 무조건 1:1 정사각형 유지 */
-        border-radius: 12px; 
-        overflow: hidden; 
-        margin-bottom: 5px; 
-        background-color: rgba(0,0,0,0.05); 
-        
-        /* ◀ 사진 겉에 들어가는 얇은 테두리 (은은한 회색) */
-        border: 1px solid rgba(0, 0, 0, 0.12); 
-        box-sizing: border-box;
+        width: 100%; position: relative; padding-bottom: 100%; 
+        border-radius: 12px; overflow: hidden; margin-bottom: 5px; background-color: rgba(0,0,0,0.05); 
+        border: 1px solid rgba(0, 0, 0, 0.12); box-sizing: border-box; /* 얇은 테두리 */
     }
-    
-    .cover-wrapper img { 
-        position: absolute; 
-        top: 0; 
-        left: 0; 
-        width: 100% !important; 
-        height: 100% !important; 
-        object-fit: cover !important; /* ◀ 사진이 찌그러지지 않고 비율 맞춰서 쏙 들어가게 함 */
+    #cover-img { 
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+        /* img 태그 대신 배경으로 사진을 깔아줌 (비율 유지 핵심) */
+        background-size: cover; 
+        background-position: center; 
+        background-repeat: no-repeat;
+        background-image: url('https://via.placeholder.com/300/e0dcd3/8c7f76?text=Image+Here');
     }
     
     .copyright-text { font-size: 10px; color: var(--player-text); opacity: 0.6; text-align: right; margin-bottom: 15px; padding-right: 2px; }
@@ -102,14 +92,14 @@
     .song-title { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
     .song-artist { font-size: 13px; opacity: 0.8; }
     
-    /* 캡처 오류 해결용 커스텀 슬라이더 */
+    /* 슬라이더 */
     .custom-slider-container { position: relative; width: 100%; height: 20px; display: flex; align-items: center; margin: 10px 0; }
     .slider-track { position: absolute; width: 100%; height: 4px; background: var(--player-point); opacity: 0.3; border-radius: 2px; }
     .slider-fill { position: absolute; height: 4px; background: var(--player-point); border-radius: 2px; width: 0%; }
     .slider-thumb { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--player-point); left: 0%; margin-left: -7px; pointer-events: none; }
     .custom-slider-container input[type="range"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; z-index: 5; }
     
-    /* 🌟 모바일 아이콘 증발 방지를 위한 명시적 크기 지정 🌟 */
+    /* 모바일 아이콘 고정 */
     .controls { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 5px; margin-bottom: 15px; }
     .controls button { 
         background: none; border: none; cursor: pointer; padding: 0; 
@@ -123,15 +113,17 @@
         display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; color: var(--player-point);
     }
 
-    /* 아이콘 내부 SVG 꽉 차게 */
-    .solar-icon, .solar-icon svg { width: 100%; height: 100%; display: block; }
+    /* Iconsax CSS */
+    .iconsax, .iconsax svg { 
+        width: 100% !important; height: 100% !important; display: block; fill: currentColor; 
+    }
 </style>
 </head>
 <body>
 
 <div class="maker-container">
     <div class="input-section">
-        <h2>music player</h2>
+        <h2> music player</h2>
         <div class="input-group">
             <label>title</label>
             <input type="text" id="in-title" placeholder="ex. 제목 또는 캐치프레이즈">
@@ -177,7 +169,7 @@
             <div id="youtube-audio" style="display:none;"></div>
             
             <div class="cover-wrapper">
-                <img id="cover-img" crossorigin="anonymous" src="https://via.placeholder.com/300/e0dcd3/8c7f76?text=Image+Here" alt="cover">
+                <div id="cover-img"></div>
             </div>
             
             <div class="copyright-text" id="copyright-text">ⓒ 출처</div>
@@ -195,23 +187,23 @@
             </div>
             
             <div class="controls">
-                <button><i class="solar-icon" icon="skip-previous" type="bold"></i></button>
+                <button><i class="iconsax" icon="previous"></i></button>
                 <button id="btn-play">
-                    <span id="icon-play" style="display:flex; width:100%; height:100%;"><i class="solar-icon" icon="play" type="bold"></i></span>
-                    <span id="icon-pause" style="display:none; width:100%; height:100%;"><i class="solar-icon" icon="pause" type="bold"></i></span>
+                    <span id="icon-play" style="display:flex; width:100%; height:100%;"><i class="iconsax" icon="play"></i></span>
+                    <span id="icon-pause" style="display:none; width:100%; height:100%;"><i class="iconsax" icon="pause"></i></span>
                 </button>
-                <button><i class="solar-icon" icon="skip-next" type="bold"></i></button>
+                <button><i class="iconsax" icon="next"></i></button>
             </div>
 
             <div class="volume-container">
-                <span><i class="solar-icon" icon="volume-small"></i></span>
+                <span><i class="iconsax" icon="volume-low"></i></span>
                 <div class="custom-slider-container" style="margin: 0;">
                     <div class="slider-track"></div>
                     <div class="slider-fill" id="volume-fill" style="width: 50%;"></div>
                     <div class="slider-thumb" id="volume-thumb" style="left: 50%;"></div>
                     <input type="range" id="volume-slider" value="50" min="0" max="100">
                 </div>
-                <span><i class="solar-icon" icon="volume-loud"></i></span>
+                <span><i class="iconsax" icon="volume-high"></i></span>
             </div>
         </div>
     </div>
@@ -227,6 +219,7 @@
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+    // 🌟 파일을 읽어올 때 img src가 아니라 backgroundImage용 url로 저장 🌟
     document.getElementById('in-image').addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
@@ -249,7 +242,9 @@
         document.getElementById('song-title').innerText = title;
         document.getElementById('song-artist').innerText = artist;
         document.getElementById('copyright-text').innerText = copyright;
-        document.getElementById('cover-img').src = uploadedImageSrc;
+        
+        // 🌟 img 태그 src 변경 대신 div의 배경 이미지를 바꿔줌 🌟
+        document.getElementById('cover-img').style.backgroundImage = "url('" + uploadedImageSrc + "')";
 
         if (player && typeof player.loadVideoById === 'function') {
             player.loadVideoById(youtubeId);
@@ -327,6 +322,6 @@
     }
 </script>
 
-<script src="https://grxvityhj.github.io/solar-icon/script.js" defer></script>
+<script src="https://grxvityhj.github.io/iconsax/script.js" defer></script>
 </body>
 </html>

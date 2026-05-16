@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>커스텀 뮤직 플레이어 메이커</title>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-<script src="https://grxvityhj.github.io/solar-icon/script.js"></script>
 
 <style>
-    /* 폰트 기본 세팅 추가 (Pretendard 없으면 기본 폰트로) */
+    /* 기본 폰트 및 배경 */
     body {
         font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
         background-color: #f9faf9;
@@ -24,24 +23,20 @@
         gap: 40px;
         flex-wrap: wrap;
         max-width: 900px;
-        justify-content: center; /* 모바일에서 가운데 정렬을 위해 추가 */
+        justify-content: center;
     }
 
-    /* 📱 모바일 반응형 세팅 (화면이 768px보다 작아질 때) */
+    /* 📱 모바일 반응형 (가로 배치 -> 세로 배치) */
     @media (max-width: 768px) {
         body { padding: 20px 10px; }
         .maker-container { gap: 20px; flex-direction: column; align-items: center; }
         .input-section { width: 100% !important; max-width: 320px; padding: 20px !important; }
     }
 
-    /* 왼쪽: 입력창 디자인 */
+    /* 왼쪽 입력창 디자인 */
     .input-section {
-        background: white;
-        padding: 30px;
-        border-radius: 20px;
-        width: 320px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        box-sizing: border-box;
+        background: white; padding: 30px; border-radius: 20px; width: 320px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05); box-sizing: border-box;
     }
     .input-section h2 { margin-top: 0; font-size: 20px; color: #474747; }
     .input-group { margin-bottom: 15px; }
@@ -66,39 +61,24 @@
         width: 100%; padding: 12px; background: #3d3d3d; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
     }
 
-    /* 오른쪽: 플레이어 디자인 */
+    /* 오른쪽 플레이어 디자인 */
     .music-player-card {
-        --player-bg: #f7f7f7; /* 오타(##) 수정! */
+        --player-bg: #f7f7f7;
         --player-point: #999999;
         --player-text: #494949;
 
-        width: 320px; 
-        background-color: var(--player-bg); 
-        border-radius: 20px; 
-        padding: 20px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05); 
-        border: 2px solid #e5e5e5;
-        position: relative; 
-        box-sizing: border-box;
+        width: 320px; background-color: var(--player-bg); border-radius: 20px; padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05); border: 2px solid #e5e5e5;
+        position: relative; box-sizing: border-box;
     }
     
-   .cover-wrapper { 
-        width: 100%; 
-        position: relative;
-        padding-bottom: 100%; /* 어떤 폰에서도 무조건 1:1 비율 유지하는 마법의 코드! */
-        border-radius: 12px; 
-        overflow: hidden; 
-        margin-bottom: 5px; 
-        background-color: rgba(0,0,0,0.05); 
+    /* 🌟 사진 1:1 절대 비율 고정 (모바일 찌그러짐 완벽 방지) 🌟 */
+    .cover-wrapper { 
+        width: 100%; position: relative; padding-bottom: 100%; /* 마법의 비율 고정 코드 */
+        border-radius: 12px; overflow: hidden; margin-bottom: 5px; background-color: rgba(0,0,0,0.05); 
     }
-    
     .cover-wrapper img { 
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%; 
-        height: 100%; 
-        object-fit: cover; /* 사진 찌그러지지 않고 예쁘게 크롭해서 꽉 채워줌 */
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; 
     }
     
     .copyright-text { font-size: 10px; color: var(--player-text); opacity: 0.6; text-align: right; margin-bottom: 15px; padding-right: 2px; }
@@ -106,39 +86,36 @@
     .song-title { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
     .song-artist { font-size: 13px; opacity: 0.8; }
     
-    /* 🌟 캡처 오류 해결을 위한 커스텀 슬라이더 디자인 (부활!) */
-    .custom-slider-container {
-        position: relative; width: 100%; height: 20px; display: flex; align-items: center; margin: 10px 0;
-    }
-    .slider-track {
-        position: absolute; width: 100%; height: 4px; background: var(--player-point); opacity: 0.3; border-radius: 2px;
-    }
-    .slider-fill {
-        position: absolute; height: 4px; background: var(--player-point); border-radius: 2px; width: 0%;
-    }
-    .slider-thumb {
-        position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--player-point); left: 0%; margin-left: -7px; pointer-events: none;
-    }
-    .custom-slider-container input[type="range"] {
-        position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; z-index: 5;
-    }
+    /* 캡처 오류 해결용 커스텀 슬라이더 */
+    .custom-slider-container { position: relative; width: 100%; height: 20px; display: flex; align-items: center; margin: 10px 0; }
+    .slider-track { position: absolute; width: 100%; height: 4px; background: var(--player-point); opacity: 0.3; border-radius: 2px; }
+    .slider-fill { position: absolute; height: 4px; background: var(--player-point); border-radius: 2px; width: 0%; }
+    .slider-thumb { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--player-point); left: 0%; margin-left: -7px; pointer-events: none; }
+    .custom-slider-container input[type="range"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; z-index: 5; }
     
+    /* 🌟 모바일 아이콘 증발 방지를 위한 명시적 크기 지정 🌟 */
     .controls { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 5px; margin-bottom: 15px; }
-    .controls button { background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;}
+    .controls button { 
+        background: none; border: none; cursor: pointer; padding: 0; 
+        display: flex; align-items: center; justify-content: center;
+        width: 24px; height: 24px; color: var(--player-point);
+    }
+    .controls button#btn-play { width: 36px; height: 36px; }
     
     .volume-container { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 0 10px; }
-    
-    .controls button, .volume-container span { color: var(--player-point); }
-    .solar-icon svg { width: 24px; height: 24px; }
-    #btn-play .solar-icon svg { width: 36px; height: 36px; }
+    .volume-container span {
+        display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; color: var(--player-point);
+    }
 
+    /* 아이콘 내부 SVG 꽉 차게 */
+    .solar-icon, .solar-icon svg { width: 100%; height: 100%; display: block; }
 </style>
 </head>
 <body>
 
 <div class="maker-container">
     <div class="input-section">
-        <h2>music player</h2>
+        <h2>🎵 music player</h2>
         <div class="input-group">
             <label>title</label>
             <input type="text" id="in-title" placeholder="ex. 제목 또는 캐치프레이즈">
@@ -147,12 +124,10 @@
             <label>name</label>
             <input type="text" id="in-artist" placeholder="ex. 가수">
         </div>
-        
         <div class="input-group">
             <label>사진 파일 첨부</label>
             <input type="file" id="in-image" accept="image/*">
         </div>
-
         <div class="input-group">
             <label>유튜브 ID (v= 뒤에 영어)</label>
             <input type="text" id="in-youtube" placeholder="w2-uvGZCe3g">
@@ -206,8 +181,8 @@
             <div class="controls">
                 <button><i class="solar-icon" icon="skip-previous" type="bold"></i></button>
                 <button id="btn-play">
-                    <span id="icon-play"><i class="solar-icon" icon="play" type="bold"></i></span>
-                    <span id="icon-pause" style="display:none;"><i class="solar-icon" icon="pause" type="bold"></i></span>
+                    <span id="icon-play" style="display:flex; width:100%; height:100%;"><i class="solar-icon" icon="play" type="bold"></i></span>
+                    <span id="icon-pause" style="display:none; width:100%; height:100%;"><i class="solar-icon" icon="pause" type="bold"></i></span>
                 </button>
                 <button><i class="solar-icon" icon="skip-next" type="bold"></i></button>
             </div>
@@ -231,20 +206,16 @@
     let timeUpdater;
     let uploadedImageSrc = "https://via.placeholder.com/300/e0dcd3/8c7f76?text=Image+Here";
 
-    // 유튜브 API 로드
     var tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-    // 파일 첨부 시 이미지를 읽어오는 기능
     document.getElementById('in-image').addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                uploadedImageSrc = e.target.result;
-            };
+            reader.onload = function(e) { uploadedImageSrc = e.target.result; };
             reader.readAsDataURL(file);
         }
     });
@@ -255,14 +226,9 @@
         const copyright = document.getElementById('in-copyright').value || 'ⓒ 출처';
         const youtubeId = document.getElementById('in-youtube').value || 'w2-uvGZCe3g';
 
-        const bgColor = document.getElementById('in-bg-color').value;
-        const pointColor = document.getElementById('in-point-color').value;
-        const textColor = document.getElementById('in-text-color').value;
-        
-        const playerCard = document.getElementById('player-card');
-        playerCard.style.setProperty('--player-bg', bgColor);
-        playerCard.style.setProperty('--player-point', pointColor);
-        playerCard.style.setProperty('--player-text', textColor);
+        document.getElementById('player-card').style.setProperty('--player-bg', document.getElementById('in-bg-color').value);
+        document.getElementById('player-card').style.setProperty('--player-point', document.getElementById('in-point-color').value);
+        document.getElementById('player-card').style.setProperty('--player-text', document.getElementById('in-text-color').value);
 
         document.getElementById('song-title').innerText = title;
         document.getElementById('song-artist').innerText = artist;
@@ -271,7 +237,7 @@
 
         if (player && typeof player.loadVideoById === 'function') {
             player.loadVideoById(youtubeId);
-            document.getElementById('icon-play').style.display = 'inline-block';
+            document.getElementById('icon-play').style.display = 'flex';
             document.getElementById('icon-pause').style.display = 'none';
             isPlaying = false;
         } else {
@@ -299,17 +265,16 @@
         
         if(isPlaying) { 
             player.pauseVideo(); 
-            document.getElementById('icon-play').style.display = 'inline-block';
+            document.getElementById('icon-play').style.display = 'flex';
             document.getElementById('icon-pause').style.display = 'none';
         } else { 
             player.playVideo(); 
             document.getElementById('icon-play').style.display = 'none';
-            document.getElementById('icon-pause').style.display = 'inline-block';
+            document.getElementById('icon-pause').style.display = 'flex';
         }
         isPlaying = !isPlaying;
     });
 
-    // 🌟 가짜 슬라이더 디자인 연동 (캡처 오류 해결 핵심!)
     document.getElementById('progress-slider').addEventListener('input', function(e) {
         const val = e.target.value;
         document.getElementById('progress-fill').style.width = val + '%';
@@ -326,7 +291,6 @@
         if(player && typeof player.setVolume === 'function') player.setVolume(val);
     });
 
-    // 노래 재생 시간에 맞춰 진행바 움직이게 하기
     function onPlayerStateChange(event) {
         if (event.data == YT.PlayerState.PLAYING) {
             timeUpdater = setInterval(function() {
@@ -347,5 +311,6 @@
     }
 </script>
 
+<script src="https://grxvityhj.github.io/solar-icon/script.js" defer></script>
 </body>
 </html>

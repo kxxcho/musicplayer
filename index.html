@@ -137,10 +137,6 @@
             <input type="file" id="in-image" accept="image/*">
         </div>
         <div class="input-group">
-            <label>유튜브 ID (v= 뒤에 영어)</label>
-            <input type="text" id="in-youtube" placeholder="w2-uvGZCe3g">
-        </div>
-        <div class="input-group">
             <label>출처 (ⓒ)</label>
             <input type="text" id="in-copyright" placeholder="ⓒ 커미션주">
         </div>
@@ -233,7 +229,9 @@
         const title = document.getElementById('in-title').value || '노래 제목';
         const artist = document.getElementById('in-artist').value || '가수 이름';
         const copyright = document.getElementById('in-copyright').value || 'ⓒ 출처';
-        const youtubeId = document.getElementById('in-youtube').value || 'w2-uvGZCe3g';
+        
+        // 유튜브 입력창이 제거되었으므로, 에러를 방지하기 위해 기본 더미 ID 세팅
+        const youtubeId = 'w2-uvGZCe3g';
 
         document.getElementById('player-card').style.setProperty('--player-bg', document.getElementById('in-bg-color').value);
         document.getElementById('player-card').style.setProperty('--player-point', document.getElementById('in-point-color').value);
@@ -261,14 +259,19 @@
     }
 
     function captureImage() {
-        const target = document.getElementById('player-card');
-        html2canvas(target, { backgroundColor: null, scale: 2, useCORS: true }).then(canvas => {
-            let link = document.createElement('a');
-            link.download = 'my_custom_player.png'; 
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        });
-    }
+    const target = document.getElementById('player-card');
+    // scale 값을 4로 올리면 화질이 아주 선명해져! (더 고화질을 원하면 5나 6으로 올려도 돼)
+    html2canvas(target, { 
+        backgroundColor: null, 
+        scale: 4, 
+        useCORS: true 
+    }).then(canvas => {
+        let link = document.createElement('a');
+        link.download = 'my_custom_player.png'; 
+        link.href = canvas.toDataURL('image/png', 1.0); // 1.0을 추가해서 화질 손실을 막음
+        link.click();
+    });
+}
 
     let isPlaying = false;
     document.getElementById('btn-play').addEventListener('click', function() {
